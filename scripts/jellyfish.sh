@@ -18,7 +18,7 @@ conda activate assembly
 
 cd /gxfs_work/geomar/smomw504/acartia_tonsa_genome_hifi_newassembly/jellyfish
 
-#zcat /gxfs_work/geomar/smomw504/acartia_tonsa_genome_PacBio_v2/*.fastq.gz |\
-#jellyfish count /dev/fd/0 -C -m 21 -s 1000000000 -t 10 -o reads.jf
+zcat /gxfs_work/geomar/smomw504/acartia_tonsa_genome_PacBio_v2/*.fastq.gz |\
+jellyfish count /dev/fd/0 -C -m 31 -s 1000000000 -t 10 -o reads_31.jf
 
-jellyfish histo -t 10 --high=10000000 reads.jf > reads.histo
+jellyfish histo -t 10 --high=10000000 reads.jf > reads_31.histo
