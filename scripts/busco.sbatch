@@ -15,11 +15,11 @@
 source ~/miniforge3/etc/profile.d/conda.sh
 conda activate assembly
 
-INPUT=Atonsa.homcov_0.1.asm.p_ctg.gfa.fa
-PREFIX=primary
-SVAL=homcov_01
+INPUT=purged.fa
+PREFIX=primary_purged
+SVAL=01
 
-cd /gxfs_work/geomar/smomw504/acartia_tonsa_genome_hifi_newassembly/hifi_assemblies/${PREFIX}
+cd /gxfs_work/geomar/smomw504/acartia_tonsa_genome_hifi_newassembly/hifi_assemblies/primary/purge_dups
 
 busco -f --offline --download_path /gxfs_work/geomar/smomw504/busco_downloads/downloads/downloaded/v5/data -i $INPUT -c 16 -o Atonsa.${PREFIX}.${SVAL} -m genome -l arthropoda_odb10
 
