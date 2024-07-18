@@ -1,5 +1,7 @@
 # atonsa_genome
 
+This pipeline will run Hifiasm, optionally purge_dups, calculate summary stats, and then run BUSCO. 
+
 run nextflow pipeline with:
 
 ```bash
