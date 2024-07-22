@@ -118,7 +118,7 @@ process HIFIASM {
 process PURGE_DUPS {
     cpus 25
     memory '180 GB'
-    time '24h'
+    time '40h'
     queue 'base'
 
     publishDir "/gxfs_work/geomar/smomw504/tonsa_genome/new_assembly/${params.prefix}", mode: 'copy'
@@ -133,30 +133,33 @@ process PURGE_DUPS {
     path "PB.base.cov", emit: pb_base_cov
     path "PB.stat", emit: pb_stat
     path "cutoffs", emit: cutoffs
+    path "purge_dups_${params.prefix}.${params.s_name}.output.log", emit: full_log
 
     script:
     """
-    source ~/miniforge3/etc/profile.d/conda.sh
-	conda activate assembly
+    {
+        source ~/miniforge3/etc/profile.d/conda.sh
+        conda activate assembly
 
-	while IFS= read -r line; do
-        echo "mapping \$line"
-        minimap2 -map-hifi ${primary_fasta} \$line -t 25 | gzip -c - > \$line.paf.gz
-        echo "Finished \$line"
-    done < /gxfs_home/geomar/smomw504/tonsa_genome/scripts/pacbio_list.txt
+        while IFS= read -r line; do
+            echo "mapping \$line"
+            minimap2 -map-hifi ${primary_fasta} /gxfs_work/geomar/smomw504/tonsa_genome/pacbio_v2/\$line -t 25 | gzip -c - >  \$line.paf.gz
+            echo "Finished \$line"
+        done < /gxfs_home/geomar/smomw504/tonsa_genome/scripts/pacbio_list.txt
 
-    # calc stats from files above
-    /gxfs_home/geomar/smomw504/bin/purge_dups/bin/pbcstat *.paf.gz
-    /gxfs_home/geomar/smomw504/bin/purge_dups/bin/calcuts PB.stat > cutoffs 2>calcults.log
+        # calc stats from files above
+        /gxfs_home/geomar/smomw504/bin/purge_dups/bin/pbcstat *.paf.gz
+        /gxfs_home/geomar/smomw504/bin/purge_dups/bin/calcuts PB.stat > cutoffs 2>calcults.log
 
-    echo "split and do self-self alignment"
-    /gxfs_home/geomar/smomw504/bin/purge_dups/bin/split_fa ${primary_fasta} > assembly.split
-    minimap2 -xasm5 -DP assembly.split assembly.split -t 25 | gzip -c - > assembly.split.self.paf.gz
+        echo "split and do self-self alignment"
+        /gxfs_home/geomar/smomw504/bin/purge_dups/bin/split_fa ${primary_fasta} > assembly.split
+        minimap2 -xasm5 -DP assembly.split assembly.split -t 25 | gzip -c - > assembly.split.self.paf.gz
 
-    echo "Starting step2: purging dups"
-    /gxfs_home/geomar/smomw504/bin/purge_dups/bin/purge_dups -2 -T cutoffs -c PB.base.cov assembly.split.self.paf.gz > dups.bed 2> purge_dups.log
+        echo "Starting step2: purging dups"
+        /gxfs_home/geomar/smomw504/bin/purge_dups/bin/purge_dups -2 -T cutoffs -c PB.base.cov assembly.split.self.paf.gz > dups.bed 2> purge_dups.log
 
-    /gxfs_home/geomar/smomw504/bin/purge_dups/bin/get_seqs dups.bed ${primary_fasta} > Atonsa.${params.prefix}.${params.s_name}.purged.fasta
+        /gxfs_home/geomar/smomw504/bin/purge_dups/bin/get_seqs dups.bed ${primary_fasta} > Atonsa.${params.prefix}.${params.s_name}.purged.fasta
+    } > purge_dups_${params.prefix}.${params.s_name}.output.log 2>&1
     """
 }
 

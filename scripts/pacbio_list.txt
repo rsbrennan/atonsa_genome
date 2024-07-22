@@ -1,4 +1,4 @@
-/gxfs_work/geomar/smomw504/tonsa_genome/pacbio_v2/XDOVE_20220621_S64049_PL100256429-1_B01.ccs.fastq.gz
-/gxfs_work/geomar/smomw504/tonsa_genome/pacbio_v2/XDOVE_20220621_S64049_PL100256429-1_D01.ccs.fastq.gz
-/gxfs_work/geomar/smomw504/tonsa_genome/pacbio_v2/XDOVE_20220621_S64049_PL100256429-1_D01.ccs.fastq.gz
-/gxfs_work/geomar/smomw504/tonsa_genome/pacbio_v2/XDOVE_20230920_R84050_PL100303381-1_D01.hifi_reads.default.fastq.gz
+XDOVE_20220621_S64049_PL100256429-1_B01.ccs.fastq.gz
+XDOVE_20220621_S64049_PL100256429-1_C01.ccs.fastq.gz
+XDOVE_20220621_S64049_PL100256429-1_D01.ccs.fastq.gz
+XDOVE_20230920_R84050_PL100303381-1_D01.hifi_reads.default.fastq.gz
