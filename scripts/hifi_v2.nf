@@ -93,7 +93,10 @@ process HIFIASM {
             $args \\
             -o Atonsa.${prefix}.${s_name} \\
             -t 25 \\
-            --s ${s_option} \\
+            -s ${s_option} \\
+            -l3 \\
+            --n-perturb 75000 \\
+            --f-perturb 0.15 \\
             --h1 ${hicRead1Path} \\
             --h2 ${hicRead2Path} \\
             ${readsPath} \\
@@ -117,8 +120,8 @@ process HIFIASM {
 
 process PURGE_DUPS {
     cpus 25
-    memory '180 GB'
-    time '40h'
+    memory '80 GB'
+    time '26h'
     queue 'base'
 
     publishDir "/gxfs_work/geomar/smomw504/tonsa_genome/new_assembly/${params.prefix}", mode: 'copy'
@@ -127,13 +130,14 @@ process PURGE_DUPS {
     path primary_fasta
 
     output:
-    path "${params.prefix}.${params.s_name}.purged.fasta", emit: purged_assembly
+    path "Atonsa.${params.prefix}.${params.s_name}.purged.fasta", emit: purged_assembly
     path "dups.bed", emit: dups_bed
     path "*.log", emit: logs
     path "PB.base.cov", emit: pb_base_cov
     path "PB.stat", emit: pb_stat
     path "cutoffs", emit: cutoffs
-    path "purge_dups_${params.prefix}.${params.s_name}.output.log", emit: full_log
+    path "*purged.fasta_stats.txt", emit: purged_stats
+	path "purge_dups_${params.prefix}.${params.s_name}.output.log", emit: full_log
 
     script:
     """
@@ -158,9 +162,16 @@ process PURGE_DUPS {
         echo "Starting step2: purging dups"
         /gxfs_home/geomar/smomw504/bin/purge_dups/bin/purge_dups -2 -T cutoffs -c PB.base.cov assembly.split.self.paf.gz > dups.bed 2> purge_dups.log
 
-        /gxfs_home/geomar/smomw504/bin/purge_dups/bin/get_seqs dups.bed ${primary_fasta} > Atonsa.${params.prefix}.${params.s_name}.purged.fasta
-    } > purge_dups_${params.prefix}.${params.s_name}.output.log 2>&1
-    """
+        /gxfs_home/geomar/smomw504/bin/purge_dups/bin/get_seqs dups.bed ${primary_fasta}
+
+        mv purged.fa Atonsa.${params.prefix}.${params.s_name}.purged.fasta
+
+        # Get fasta stats
+        /gxfs_home/geomar/smomw504/bin/fasta_stats/bin/fasta_stats Atonsa.${params.prefix}.${params.s_name}.purged.fasta > Atonsa.${params.prefix}.${params.s_name}.purged.fasta_stats.txt
+	
+	
+	} > purge_dups_${params.prefix}.${params.s_name}.output.log 2>&1
+	"""
 }
 
 
@@ -183,7 +194,7 @@ process BUSCO {
     source ~/miniforge3/etc/profile.d/conda.sh
     conda activate assembly
 
-    busco -f --offline --download_path /gxfs_work/geomar/smomw504/busco_downloads/downloads/downloaded/v5/data \
+    busco -f --offline --download_path /gxfs_work/geomar/smomw504/busco_downloads/ \
           -i ${input_fasta} -c 16 -o Atonsa.${params.prefix}.${params.s_name}.${assembly_type} \
           -m genome -l arthropoda_odb10
     """
@@ -217,6 +228,6 @@ workflow {
     }
 
     // Run BUSCO on all inputs
-    BUSCO(busco_inputs.flatten().toList())
+    BUSCO(busco_inputs)
 }
 
