@@ -22,9 +22,9 @@ checkAndSetParams()
 process HIFIASM {
 
     cpus 25
-    memory '180 GB'
     time '30h'
-    queue 'base'
+    queue { params.run_type == 'hi-c' ? 'highmem' : 'base' }
+	memory { params.run_type == 'hi-c' ? '540 GB' : '180 GB' }
 
     publishDir "/gxfs_work/geomar/smomw504/tonsa_genome/new_assembly/${params.prefix}", mode: 'copy'
 
@@ -47,8 +47,6 @@ process HIFIASM {
     path "*.a_ctg.gfa.fa", emit: alternate_fasta, optional: true
     path "*.hap1.p_ctg.gfa", emit: paternal_contigs, optional: true
     path "*.hap2.p_ctg.gfa", emit: maternal_contigs, optional: true
-    path "*.hap1.p_ctg.gfa.fa", emit: paternal_fasta, optional: true
-    path "*.hap2.p_ctg.gfa.fa", emit: maternal_fasta, optional: true
     path "*.fasta_stats.primary.txt", emit: stats_primary, optional: true
     path "*.fasta_stats.alternate.txt", emit: stats_alternate, optional: true
     path "*.log", emit: log
@@ -91,7 +89,8 @@ process HIFIASM {
         """
         /gxfs_home/geomar/smomw504/bin/hifiasm/hifiasm \\
             $args \\
-            -o Atonsa.${prefix}.${s_name} \\
+            --primary \\
+	        -o Atonsa.${prefix}.${s_name} \\
             -t 25 \\
             -s ${s_option} \\
             -l3 \\
