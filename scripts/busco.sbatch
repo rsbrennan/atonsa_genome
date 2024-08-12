@@ -15,13 +15,9 @@
 source ~/miniforge3/etc/profile.d/conda.sh
 conda activate assembly
 
-INPUT=purged.fa
-PREFIX=primary_purged
-SVAL=01
+cd /gxfs_work/geomar/smomw504/tonsa_genome/pacbio_v2/
 
-cd /gxfs_work/geomar/smomw504/acartia_tonsa_genome_hifi_newassembly/hifi_assemblies/primary/purge_dups
-
-busco -f --offline --download_path /gxfs_work/geomar/smomw504/busco_downloads/downloads/downloaded/v5/data -i $INPUT -c 16 -o Atonsa.${PREFIX}.${SVAL} -m genome -l arthropoda_odb10
+busco -f --offline --download_path /gxfs_work/geomar/smomw504/busco_downloads/ -i purged.fa -c 16 -o Atonsa.purged -m genome -l arthropoda_odb10
 
 # -c 10: number of threads to run BUSCO
 # -m genome: mode of BUSCO
